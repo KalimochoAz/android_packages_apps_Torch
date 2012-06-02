@@ -27,6 +27,8 @@ import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
+import android.view.SurfaceView;
+
 public class MainActivity extends Activity {
 
     private TorchWidgetProvider mWidgetProvider;
@@ -51,6 +53,8 @@ public class MainActivity extends Activity {
 
     private Context context;
 
+    public static SurfaceView surfaceView;
+
     // Label showing strobe frequency
     private TextView strobeLabel;
 
@@ -58,7 +62,7 @@ public class MainActivity extends Activity {
     private SharedPreferences mPrefs;
 
     private SharedPreferences.Editor mPrefsEditor = null;
-    
+
     // Labels
     private String labelOn = null;
     private String labelOff = null;
@@ -76,6 +80,8 @@ public class MainActivity extends Activity {
         strobeLabel = (TextView) findViewById(R.id.strobeTimeLabel);
         slider = (SeekBar) findViewById(R.id.slider);
         buttonBright = (CheckBox) findViewById(R.id.bright);
+
+        surfaceView = (SurfaceView) this.findViewById(R.id.surfaceview);
 
         strobeperiod = 100;
         mTorchOn = false;

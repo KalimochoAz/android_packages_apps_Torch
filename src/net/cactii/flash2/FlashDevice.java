@@ -10,7 +10,14 @@ import android.util.Log;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 
-public class FlashDevice {
+import android.app.Activity;
+import android.os.Bundle;
+import android.view.SurfaceHolder;
+import android.view.SurfaceView;
+import android.view.View;
+import android.view.WindowManager;
+
+public class FlashDevice implements SurfaceHolder.Callback {
 
     private static final String MSG_TAG = "TorchDevice";
 
@@ -22,6 +29,9 @@ public class FlashDevice {
     private static boolean mUseCameraInterface;
     private WakeLock mWakeLock;
 
+    private SurfaceHolder surfaceHolder;
+    private SurfaceView surfaceViewCopy;
+
     public static final int STROBE    = -1;
     public static final int OFF       = 0;
     public static final int ON        = 1;
@@ -29,6 +39,7 @@ public class FlashDevice {
     public static final int DEATH_RAY = 3;
 
     private static FlashDevice instance;
+    private static boolean surfaceCreated = false;
 
     private FileWriter mWriter = null;
 
@@ -42,7 +53,7 @@ public class FlashDevice {
         mValueHigh = context.getResources().getInteger(R.integer.valueHigh);
         mValueDeathRay = context.getResources().getInteger(R.integer.valueDeathRay);
         mFlashDevice = context.getResources().getString(R.string.flashDevice);
-        mUseCameraInterface = context.getResources().getBoolean(R.bool.useCameraInterface);
+        mUseCameraInterface = true;
         if (mUseCameraInterface) {
             PowerManager pm
                 = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
@@ -95,19 +106,35 @@ public class FlashDevice {
                         mCamera.stopPreview();
                         mCamera.release();
                         mCamera = null;
+                        surfaceHolder = null;
+                        surfaceCreated = false;
                     }
                     if (mWakeLock.isHeld())
                         mWakeLock.release();
                 } else {
+                    if(!surfaceCreated) {
+                	    Log.d(MSG_TAG, "KalimAz Prepare surface ...........................................................................");
+	                    surfaceViewCopy = MainActivity.surfaceView;
+                        if(surfaceViewCopy == null ) {
+                    	    Log.d(MSG_TAG, "KalimAz NO SURFACEVIEW ...........................................................................");
+                        }
+                	    surfaceHolder = surfaceViewCopy.getHolder();
+                	    surfaceHolder.addCallback(this);
+	                    surfaceHolder.setKeepScreenOn(true);
+                        mCamera.setPreviewDisplay(surfaceHolder);
+                        surfaceCreated = true;
+                        mCamera.startPreview();
+                    }
                     mParams = mCamera.getParameters();
                     mParams.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
                     mCamera.setParameters(mParams);
                     if (!mWakeLock.isHeld()) {  // only get the wakelock if we don't have it already
                         mWakeLock.acquire(); // we don't want to go to sleep while cam is up
                     }
-                    if (mFlashMode != STROBE) {
+                    /*if (mFlashMode != STROBE) {
+                        Log.d(MSG_TAG, "KalimAz Preview no strobe .............................................................................");
                         mCamera.startPreview();
-                    }
+                    }*/
                 }
             } else {
                 if (mWriter == null) {
@@ -129,4 +156,27 @@ public class FlashDevice {
     public synchronized int getFlashMode() {
         return mFlashMode;
     }
+
+    @Override
+    public void surfaceChanged(SurfaceHolder holder, int I, int J, int K) {
+        Log.d(MSG_TAG, "surfaceChanged");
+        //moveTaskToBack(true); // once Surface is set up - we should be able to background ourselves.
+    }
+
+    @Override
+    public void surfaceCreated(SurfaceHolder holder) {
+        Log.d(MSG_TAG, "surfaceCreated");
+        try {
+            mCamera.setPreviewDisplay(holder);
+            Log.d(MSG_TAG, "KalimAz Preview on surface ..............................................................................");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void surfaceDestroyed(SurfaceHolder holder) {
+        Log.d(MSG_TAG, "surfaceDestroyed");
+    }
+
 }
