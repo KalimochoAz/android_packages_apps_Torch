@@ -113,14 +113,14 @@ public class FlashDevice implements SurfaceHolder.Callback {
                         mWakeLock.release();
                 } else {
                     if(!surfaceCreated) {
-                	    Log.d(MSG_TAG, "KalimAz Prepare surface ...........................................................................");
-	                    surfaceViewCopy = MainActivity.surfaceView;
+                        Log.d(MSG_TAG, "Prepare surface ...........................................................................");
+                        surfaceViewCopy = MainActivity.surfaceView;
                         if(surfaceViewCopy == null ) {
-                    	    Log.d(MSG_TAG, "KalimAz NO SURFACEVIEW ...........................................................................");
+                            Log.d(MSG_TAG, "NO SURFACEVIEW ...........................................................................");
                         }
-                	    surfaceHolder = surfaceViewCopy.getHolder();
-                	    surfaceHolder.addCallback(this);
-	                    surfaceHolder.setKeepScreenOn(true);
+                        surfaceHolder = surfaceViewCopy.getHolder();
+                        surfaceHolder.addCallback(this);
+                        surfaceHolder.setKeepScreenOn(true);
                         mCamera.setPreviewDisplay(surfaceHolder);
                         surfaceCreated = true;
                         mCamera.startPreview();
@@ -132,7 +132,6 @@ public class FlashDevice implements SurfaceHolder.Callback {
                         mWakeLock.acquire(); // we don't want to go to sleep while cam is up
                     }
                     /*if (mFlashMode != STROBE) {
-                        Log.d(MSG_TAG, "KalimAz Preview no strobe .............................................................................");
                         mCamera.startPreview();
                     }*/
                 }
@@ -168,7 +167,6 @@ public class FlashDevice implements SurfaceHolder.Callback {
         Log.d(MSG_TAG, "surfaceCreated");
         try {
             mCamera.setPreviewDisplay(holder);
-            Log.d(MSG_TAG, "KalimAz Preview on surface ..............................................................................");
         } catch (IOException e) {
             e.printStackTrace();
         }
